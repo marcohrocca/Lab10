@@ -6,13 +6,19 @@ class Model:
         self._nodes = None
         self._edges = None
         self.G = nx.Graph()
+        self._dao = DAO()
+        self._filiali = None
 
     def costruisci_grafo(self, threshold):
         """
         Costruisce il grafo (self.G) inserendo tutte le Filiali (i nodi) presenti e filtrando i Collegamenti con
         importo medio per bonifico >= threshold (euro)
         """
-        # TODO
+        #Inizio creando i nodi ovvero le filiali
+        self._filiali = DAO.get_filiali()
+        for filiale in self._filiali:
+            self.G.add_node(filiale)
+
 
     def get_num_edges(self):
         """
