@@ -41,10 +41,10 @@ class Controller:
             ft.Text(f"Il numero di collegamenti è: {self._model.get_num_edges()}")
         )
         #Popolo con lista collegamenti
-        for arco in self._model.get_all_edges():
+        for filiale1,filiale2,peso in self._model.get_all_edges():
             self._view.lista_visualizzazione.controls.append(
-                ft.Text(f"{arco[0].nome} - {arco[1].nome} - Importo medio per bonifico {arco[2]:.2f} €")
+                ft.Text(f"{filiale1.nome} - {filiale2.nome} - Importo medio per bonifico {peso:.2f} €")
             )
 
-
+        self._view.lista_visualizzazione.update()
 
