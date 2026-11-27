@@ -17,6 +17,7 @@ class Controller:
         * Numero di Collegamenti
         * Lista di Collegamenti che superano l'importo indicato come soglia
         """
+
         #Per prima cosa controllo che valore importo inserito sia vaido,ovvero sia un float e sia>0
         try:
             self.threshold_selezionato = float(self._view.importo_medio_minimo.value)
@@ -28,10 +29,19 @@ class Controller:
         except ValueError:
             self._view.show_alert("Inserire un valore valido")
             return
+
+        # Controllo che model sia riuscito a ricavare dati dal database
+        try:
+            self._model.costruisci_grafo(self.threshold_selezionato)
+        except RuntimeError:
+            self._view.show_alert("Errore nel caricamento dei dati dal database")
+            return
+
+        #Se siamo qua ha passato tutti i controlli
         # Resetto la lista di visualizzazione nel caso utente clicchi 2 volte o più
         self._view.lista_visualizzazione.controls.clear()
-        # Chiedo al model di costruire il grafo
-        self._model.costruisci_grafo(self.threshold_selezionato)
+        # Chiedo al model di costruire il grafo,l'ha già costruito se ha passato try
+        # self._model.costruisci_grafo(self.threshold_selezionato)
         #Popolo con il numero di nodi
         self._view.lista_visualizzazione.controls.append(
             ft.Text(f"Il numero di filiali presenti è: {self._model.get_num_nodes()}")
@@ -46,5 +56,5 @@ class Controller:
                 ft.Text(f"{filiale1.nome} - {filiale2.nome} - Importo medio per bonifico {peso:.2f} €")
             )
 
-        self._view.lista_visualizzazione.update()
+        self._view.update()
 

@@ -48,22 +48,28 @@ class Model:
         self._abbinamento_id_filiale.clear()
         #Inizio creando i nodi ovvero le filiali
         self._filiali = self._dao.get_filiali()
-        for filiale in self._filiali: #Creo un dizionario che abbina alla chiave id(univoca)
-                                      #il nome della filiale es {"id12":"Filiale Torino Centro"}
-            self._abbinamento_id_filiale[filiale.id]=filiale
-            self.G.add_node(filiale) #Aggiungo filiale al grafico a prescindere al max rimane punto isolato
-        self._bonifici = self._dao.get_bonifici()
-        #Adesso che ho anche i bonifici chiamo la funziona che li raggruppa a coppie di filiali
-        #questa funzione restituisce un dizionario avente come chiave la coppia id-filiali e come valore la media dei bonifici
-        #es {(a,b):300}
-        filiali_peso=self.media_filiali(self._bonifici)
-        for id_filiali,media in filiali_peso.items():
-            #Aggiungo arco solo se rispetta requisiti
-            if media >= threshold: #Implica che quel collegamento è valido e devo aggiungerlo al grafo
-                #A questo punto devo collegare id_filiali a nome filiale e aggiungere archi
-                filiale_1=self._abbinamento_id_filiale[id_filiali[0]]
-                filiale_2 = self._abbinamento_id_filiale[id_filiali[1]]
-                self.G.add_edge(filiale_1,filiale_2,weight=media)
+        if self._filiali is not None:
+            for filiale in self._filiali: #Creo un dizionario che abbina alla chiave id(univoca)
+                                          #il nome della filiale es {"id12":"Filiale Torino Centro"}
+                self._abbinamento_id_filiale[filiale.id]=filiale
+                self.G.add_node(filiale) #Aggiungo filiale al grafico a prescindere al max rimane punto isolato
+            self._bonifici = self._dao.get_bonifici()
+            #Adesso che ho anche i bonifici chiamo la funziona che li raggruppa a coppie di filiali
+            #questa funzione restituisce un dizionario avente come chiave la coppia id-filiali e come valore la media dei bonifici
+            #es {(a,b):300}
+            #Prima però controllo restituisca qualcosa
+            if self._bonifici is None:
+                raise RuntimeError("Impossibile leggere i bonifici dal database")
+            filiali_peso=self.media_filiali(self._bonifici)
+            for id_filiali,media in filiali_peso.items():
+                #Aggiungo arco solo se rispetta requisiti
+                if media >= threshold: #Implica che quel collegamento è valido e devo aggiungerlo al grafo
+                    #A questo punto devo collegare id_filiali a nome filiale e aggiungere archi
+                    filiale_1=self._abbinamento_id_filiale[id_filiali[0]]
+                    filiale_2 = self._abbinamento_id_filiale[id_filiali[1]]
+                    self.G.add_edge(filiale_1,filiale_2,weight=media)
+        else:
+            raise RuntimeError("Impossibile leggere le filiali dal database")
 
 
 
